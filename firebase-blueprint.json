@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user account information and roles.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "premium", "admin"] },
+        "createdAt": { "type": "number" },
+        "lastActive": { "type": "number" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "ChatSession": {
+      "title": "Chat Session",
+      "description": "Represents a single conversation thread.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "pinned": { "type": "boolean" },
+        "model": { "type": "string" },
+        "messagesCount": { "type": "number" }
+      },
+      "required": ["id", "userId", "title"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A single message within a session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "assistant", "system"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "model": { "type": "string" }
+      },
+      "required": ["id", "role", "content", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Direct access to user profile."
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "ChatSession",
+      "description": "Sessions for a specific user."
+    },
+    "/users/{userId}/sessions/{sessionId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages for a specific session."
+    }
+  }
+}

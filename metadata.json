@@ -1,0 +1,6 @@
+{
+  "name": "HOB AI",
+  "description": "Premium Arabic-first AI platform featuring real-time chat, image generation, and a powerful dashboard with full RTL support.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["AI Chat", "Streaming", "RTL Support", "Analytics"]
+}
