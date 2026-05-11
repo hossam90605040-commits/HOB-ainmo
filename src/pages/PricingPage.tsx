@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Check, Zap, Shield, Rocket, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
