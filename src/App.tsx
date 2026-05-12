@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { Zap } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from './components/ui/sonner-toaster';
 import './i18n';
 
 // Pages - to be created
