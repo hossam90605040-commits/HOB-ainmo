@@ -8,8 +8,8 @@ export const MODELS = {
   FAST: 'gemini-3-flash-preview',
   SMART: 'gemini-3.1-pro-preview',
   IMAGE: 'gemini-2.5-flash-image',
-  VIDEO: 'gemini-3-flash-preview',
-  THINKING: 'gemini-3-flash-preview'
+  VIDEO: 'veo-3.1-lite-generate-preview',
+  THINKING: 'gemini-3.1-pro-preview'
 };
 
 export async function* sendMessageStream(
@@ -97,15 +97,26 @@ export async function* sendMessageStream(
 }
 
 export async function generateImageAI(prompt: string) {
-  const result = await genAI.models.generateContent({
+  const response = await genAI.models.generateContent({
     model: MODELS.IMAGE,
-    contents: [{ text: prompt }]
+    contents: {
+      parts: [
+        {
+          text: prompt,
+        },
+      ],
+    },
+    config: {
+      imageConfig: {
+        aspectRatio: "1:1",
+      },
+    },
   });
 
-  const parts = result.candidates[0].content.parts;
-  const imagePart = parts.find(p => p.inlineData);
-  if (imagePart?.inlineData) {
-    return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+  for (const part of response.candidates[0].content.parts) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    }
   }
   throw new Error("No image generated");
 }

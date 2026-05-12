@@ -55,6 +55,16 @@ export default function CreativePage() {
     }
   };
 
+  const handleDownload = (url: string, type: 'image' | 'video' = 'image') => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `hob-ai-${type}-${Date.now()}.${type === 'image' ? 'png' : 'mp4'}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(i18n.language === 'ar' ? 'بدأ التحميل' : 'Download started');
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
 
@@ -72,8 +82,9 @@ export default function CreativePage() {
         setGallery(prev => [{ type: 'video', url, prompt, id: Date.now().toString() }, ...prev]);
       }
       toast.success(i18n.language === 'ar' ? 'تم التوليد بنجاح' : 'Generated successfully');
-    } catch (error) {
-      toast.error(i18n.language === 'ar' ? 'حدث خطأ أثناء التوليد' : 'Error during generation');
+    } catch (error: any) {
+      console.error("Creative generation error:", error);
+      toast.error(i18n.language === 'ar' ? `حدث خطأ أثناء التوليد: ${error.message || 'غير معروف'}` : `Error during generation: ${error.message || 'unknown'}`);
     } finally {
       setIsGenerating(false);
     }
@@ -283,7 +294,11 @@ export default function CreativePage() {
                   )}
                   
                   <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="icon" className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-black/70">
+                    <Button 
+                      size="icon" 
+                      className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-black/70"
+                      onClick={() => handleDownload(result, activeTab)}
+                    >
                       <Download className="w-5 h-5" />
                     </Button>
                     <Button size="icon" className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-black/70">
@@ -324,7 +339,11 @@ export default function CreativePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
                        <p className="text-sm font-medium line-clamp-2 mb-4">{item.prompt}</p>
                        <div className="flex gap-2">
-                         <Button size="sm" className="bg-white/10 hover:bg-white/20 rounded-xl flex-1 backdrop-blur-md">
+                         <Button 
+                          size="sm" 
+                          className="bg-white/10 hover:bg-white/20 rounded-xl flex-1 backdrop-blur-md"
+                          onClick={() => handleDownload(item.url, item.type)}
+                         >
                            {i18n.language === 'ar' ? 'تحميل' : 'Download'}
                          </Button>
                          <Button size="icon" variant="ghost" className="bg-white/10 rounded-xl backdrop-blur-md">
