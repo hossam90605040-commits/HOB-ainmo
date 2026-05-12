@@ -175,7 +175,7 @@ export default function ChatPage() {
 
     try {
       // Save User Message
-      await addDoc(collection(db, 'users', user.uid, 'sessions', currentSessionId, 'messages'), userMsg);
+      await setDoc(doc(db, 'users', user.uid, 'sessions', currentSessionId, 'messages', userMsg.id), userMsg);
       await updateDoc(doc(db, 'users', user.uid, 'sessions', currentSessionId), {
         updatedAt: Date.now(),
         messagesCount: messages.length + 1
@@ -202,7 +202,7 @@ export default function ChatPage() {
       }
 
       // Save Assistant Message
-      await addDoc(collection(db, 'users', user.uid, 'sessions', currentSessionId, 'messages'), {
+      await setDoc(doc(db, 'users', user.uid, 'sessions', currentSessionId, 'messages', assistantId), {
         id: assistantId,
         role: 'assistant',
         content: fullResponse,
@@ -210,8 +210,9 @@ export default function ChatPage() {
         model: selectedModel
       });
 
-    } catch (error) {
-      toast.error(t('error_sending'));
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      toast.error(i18n.language === 'ar' ? `خطأ في الإرسال: ${error.message || 'غير معروف'}` : `Error sending: ${error.message || 'unknown'}`);
     } finally {
       setIsStreaming(false);
     }

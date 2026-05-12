@@ -8,18 +8,18 @@ export const MODELS = {
   FAST: 'gemini-3-flash-preview',
   SMART: 'gemini-3.1-pro-preview',
   IMAGE: 'gemini-2.5-flash-image',
-  VIDEO: 'gemini-3-flash-preview', // Placeholder for logic
+  VIDEO: 'gemini-3-flash-preview',
   THINKING: 'gemini-3-flash-preview'
 };
 
 export async function* sendMessageStream(
   message: string,
   history: ChatMessage[] = [],
-  model: string = MODELS.FAST,
+  modelName: string = MODELS.FAST,
   attachments: Attachment[] = []
 ) {
   const result = await genAI.models.generateContentStream({
-    model: model,
+    model: modelName,
     contents: [
       ...history.map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
@@ -51,7 +51,6 @@ export async function* sendMessageStream(
       topP: 0.95,
       systemInstruction: "You are HOB AI, a premium Arabic-first AI assistant. You are intelligent, helpful, and eloquent in both Arabic and English. Your preferred language is Arabic. Use professional and modern Arabic. Format your code in markdown blocks. You have access to Google Search to provide accurate, real-time information. Always verify facts using the search tool when needed, and your response will automatically include citations for the sources you used.",
       tools: [{ googleSearch: {} }],
-      toolConfig: { includeServerSideToolInvocations: true }
     }
   });
 

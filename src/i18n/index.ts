@@ -26,7 +26,10 @@ const resources = {
       "premium": "بريميوم",
       "free": "مجاني",
       "admin": "مسؤول",
-      "logout": "تسجيل الخروج"
+      "logout": "تسجيل الخروج",
+      "error_sending": "خطأ في إرسال الرسالة",
+      "chat_deleted": "تم حذف المحادثة بنجاح",
+      "error_deleting": "فشل في حذف المحادثة"
     }
   },
   en: {
@@ -52,7 +55,10 @@ const resources = {
       "premium": "Premium",
       "free": "Free",
       "admin": "Admin",
-      "logout": "Logout"
+      "logout": "Logout",
+      "error_sending": "Error sending message",
+      "chat_deleted": "Chat deleted successfully",
+      "error_deleting": "Failed to delete chat"
     }
   }
 };

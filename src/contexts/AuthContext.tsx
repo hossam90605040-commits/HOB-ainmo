@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
+import { User, onAuthStateChanged, signInAnonymously, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../services/firebase';
 import { UserProfile, UserRole } from '../types';
@@ -9,12 +10,14 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  signInGuest: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const newProfile: UserProfile = {
               uid: u.uid,
               email: u.email || '',
-              displayName: u.displayName || '',
+              displayName: u.displayName || (u.isAnonymous ? (i18n.language === 'ar' ? 'زائر' : 'Guest') : ''),
               photoURL: u.photoURL || '',
               role: UserRole.USER,
               createdAt: Date.now(),
@@ -56,12 +59,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithPopup(auth, googleProvider);
   };
 
+  const signInGuest = async () => {
+    await signInAnonymously(auth);
+  };
+
   const signOutUser = async () => {
     await auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signOut: signOutUser }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signInGuest, signOut: signOutUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
-  const { signIn } = useAuth();
+  const { signIn, signInGuest } = useAuth();
   const navigate = useNavigate();
 
   const handleSignIn = async () => {
@@ -19,6 +19,17 @@ export default function LoginPage() {
       navigate('/chat');
     } catch (error) {
       toast.error(i18n.language === 'ar' ? 'فشل تسجيل الدخول' : 'Sign in failed');
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    try {
+      await signInGuest();
+      toast.success(i18n.language === 'ar' ? 'تم الدخول كزائر' : 'Entered as guest');
+      navigate('/chat');
+    } catch (error: any) {
+      console.error("Guest sign-in error:", error);
+      toast.error(i18n.language === 'ar' ? `فشل الدخول كزائر: ${error.message}` : `Guest access failed: ${error.message}`);
     }
   };
 
@@ -64,6 +75,14 @@ export default function LoginPage() {
             >
               <Github className="w-5 h-5 text-slate-400" />
               {i18n.language === 'ar' ? 'الدخول باستخدام GitHub' : 'Sign in with GitHub'}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full h-14 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 flex items-center justify-center gap-3 text-lg font-bold transition-all hover:scale-[1.02]"
+              onClick={handleGuestSignIn}
+            >
+              {i18n.language === 'ar' ? 'التسجيل لاحقاً' : 'Register Later'}
             </Button>
             
             <div className="relative my-8">
