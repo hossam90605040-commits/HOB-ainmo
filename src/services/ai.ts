@@ -54,26 +54,17 @@ export async function* sendMessageStream(
     }
   });
 
-  let fullText = "";
   let groundingMetadata: any = null;
 
   for await (const chunk of result) {
     if (chunk.text) {
-      fullText += chunk.text;
       yield chunk.text;
     }
     
-    // Attempt to capture grounding metadata if available in the last chunk
     const candidate = chunk.candidates?.[0];
     if (candidate?.groundingMetadata) {
       groundingMetadata = candidate.groundingMetadata;
     }
-  }
-
-  // If we have grounding metadata, append sources at the end
-  if (groundingMetadata?.searchEntryPoint?.html) {
-    // This is the Google Search widget
-    // But we also want specific links if available
   }
 
   if (groundingMetadata?.groundingChunks) {
@@ -96,42 +87,91 @@ export async function* sendMessageStream(
   }
 }
 
-export async function generateImageAI(prompt: string) {
-  const response = await genAI.models.generateContent({
-    model: MODELS.IMAGE,
-    contents: {
-      parts: [
-        {
-          text: prompt,
-        },
-      ],
-    },
-    config: {
-      imageConfig: {
-        aspectRatio: "1:1",
+export async function generateImageAI(prompt: string): Promise<string> {
+  try {
+    const response = await genAI.models.generateContent({
+      model: MODELS.IMAGE,
+      contents: {
+        parts: [{ text: prompt }],
       },
-    },
-  });
+      config: {
+        imageConfig: { aspectRatio: "1:1" },
+      },
+    });
 
-  for (const part of response.candidates[0].content.parts) {
-    if (part.inlineData) {
-      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    if (!response.candidates || response.candidates.length === 0) {
+      throw new Error("لم يتم إرجاع أي نتائج من النموذج. قد يكون السبب فلاتر الأمان.");
     }
+
+    const firstCandidate = response.candidates[0];
+    if (!firstCandidate.content || !firstCandidate.content.parts) {
+      throw new Error("الاستجابة فارغة أو غير مكتملة.");
+    }
+
+    for (const part of firstCandidate.content.parts) {
+      if (part.inlineData) {
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
+    }
+    
+    throw new Error("لم يتم العثور على بيانات الصورة في الاستجابة.");
+  } catch (error: any) {
+    console.error("AI Image Generation Error:", error);
+    throw error;
   }
-  throw new Error("No image generated");
 }
 
-export async function generateVideoAI(prompt: string, attachments: Attachment[] = []) {
-  // Simulating animation logic: if image is provided, we animate it.
-  const hasImage = attachments.some(a => a.type.startsWith('image/'));
-  
-  // In a real implementation with a supporting API, this would return a video URL
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
-  if (hasImage) {
-    // Return a dummy animated result
-    return "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4";
+export async function generateVideoAI(prompt: string, attachments: Attachment[] = []): Promise<string> {
+  try {
+    const imagePart = attachments.find(a => a.type.startsWith('image/'));
+    
+    let operation = await genAI.models.generateVideos({
+      model: MODELS.VIDEO,
+      prompt: prompt,
+      ...(imagePart && {
+        image: {
+          imageBytes: imagePart.url.includes('base64,') ? imagePart.url.split('base64,')[1] : imagePart.url,
+          mimeType: imagePart.type
+        }
+      }),
+      config: {
+        numberOfVideos: 1,
+        resolution: '1080p',
+        aspectRatio: '16:9'
+      }
+    });
+
+    while (!operation.done) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      operation = await genAI.operations.getVideosOperation({ operation: operation });
+    }
+
+    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+    if (!downloadLink) {
+      throw new Error("لم يتم العثور على رابط تحميل الفيديو في الاستجابة.");
+    }
+
+    const apiKey = (process.env as any).API_KEY || process.env.GEMINI_API_KEY!;
+    
+    const fetchResponse = await fetch(downloadLink, {
+      method: 'GET',
+      headers: {
+        'x-goog-api-key': apiKey,
+      },
+    });
+
+    if (!fetchResponse.ok) {
+      throw new Error(`فشل في تحميل الفيديو: ${fetchResponse.statusText}`);
+    }
+
+    const blob = await fetchResponse.blob();
+    return URL.createObjectURL(blob);
+
+  } catch (error: any) {
+    console.error("AI Video Generation Error:", error);
+    if (error.message?.includes('403') || error.message?.includes('PERMISSION_DENIED')) {
+      throw new Error("توليد الفيديو يتطلب مفتاح API مدفوع ومفعل عليه خدمة Veo. يرجى التأكد من إعداداتك.");
+    }
+    throw error;
   }
-  
-  return "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"; 
 }

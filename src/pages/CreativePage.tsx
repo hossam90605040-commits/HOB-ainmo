@@ -164,17 +164,17 @@ export default function CreativePage() {
               <Sparkles className="w-3 h-3" />
               Ai Creative Studio
             </motion.div>
-            <h1 className="text-4xl md:text-5xl font-black">{i18n.language === 'ar' ? 'حوّل خيالك إلى حقيقة' : 'Turn Imagination into Reality'}</h1>
+            <h1 className="text-4xl md:text-5xl font-black">{i18n.language === 'ar' ? 'حوّل أفكارك إلى واقع سينمائي' : 'Turn Concepts into Cinematic Reality'}</h1>
             <p className="text-slate-400 max-w-2xl mx-auto">
-              {i18n.language === 'ar' ? 'ولد صوراً وفيديوهات احترافية باستخدام أحدث تقنيات الذكاء الاصطناعي.' : 'Generate professional images and videos using the latest AI technologies.'}
+              {i18n.language === 'ar' ? 'استخدم أحدث موديلات Veo و Gemini لتوليد فيديوهات وصور فائقة الدقة والواقعية.' : 'Leverage cutting-edge Veo and Gemini models to generate high-fidelity, realistic videos and images.'}
             </p>
             {activeTab === 'video' && (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs py-1 px-3 rounded-full inline-block"
+                className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs py-1 px-3 rounded-full inline-block"
               >
-                {i18n.language === 'ar' ? 'وضع الفيديو حالياً في طور العرض التجريبي' : 'Video Gen is currently in Demo mode'}
+                {i18n.language === 'ar' ? 'قوة محرك Veo 3.1 الاحترافي' : 'Powered by Veo 3.1 Pro Engine'}
               </motion.div>
             )}
           </div>
